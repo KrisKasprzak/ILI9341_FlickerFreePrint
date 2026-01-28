@@ -24,7 +24,7 @@ ILI9341_FlickerFreePrint Data1(&YOUR DISPLAY OBJECT NAME, 0xFFFF, 0X0000);
  if you need to restore left justification, call
  <br>
  Data1.setJustification(JUSTIFY_LEFT);
-
+ <br>
 3. Print the data similar to the Print object except call print on the create flicker free data object
    <br>
    Display.setCursor(x, y);
