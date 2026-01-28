@@ -4,7 +4,7 @@ This library will let programmers paint data to TFT LCD's using a Teensy and the
 
 <b><h3>
 WARNING
-<br>
+</b><br>
 This library is intended to be used with a wide variety of MCU's. A special library (dtostrf.h) is needed for some MCU's and is delivered with certian MCU's that require it, but not all. If you get a compile error "no such file or directory: dtostrf.h", uncomment this line in FlickerFreePrint.h (around line 50 or so) so the compiler can include it. I have this commented out as few MCU's need it.
 // #include <avr/dtostrf.h>
 
