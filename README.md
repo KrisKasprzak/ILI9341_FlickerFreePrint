@@ -4,12 +4,6 @@ This library will let programmers paint data to TFT LCD's using a Teensy and the
 
 ![header image](https://raw.github.com/KrisKasprzak/ILI9341_FlickerFreePrint/master/Images/LeftRight.jpg)
 
-<b><h3>
-WARNING
-</b><br></h3> 
-This library is intended to be used with a wide variety of MCU's. A special library (dtostrf.h) is needed for some MCU's and is delivered with certian MCU's that require it, but not all. If you get a compile error "no such file or directory: dtostrf.h", uncomment this line in ILI9341_FlickerFreePrint.h (around line 50 or so) so the compiler can include it. I have this commented out as few MCU's need it.
-// #include <avr/dtostrf.h>
-
 <b><h3>General code usage</b></h3> 
 
 1. #include the library 
