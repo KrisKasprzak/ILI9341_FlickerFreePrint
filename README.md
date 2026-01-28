@@ -4,6 +4,8 @@ This library will let programmers paint data to TFT LCD's using a Teensy and the
 
 ![header image](https://raw.github.com/KrisKasprzak/ILI9341_FlickerFreePrint/master/Images/LeftRight.jpg)
 
+https://youtu.be/FNrxUQ5eWYE
+
 <b><h3>General code usage</b></h3> 
 
 1. #include the library 
