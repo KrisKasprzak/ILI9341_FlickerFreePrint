@@ -42,7 +42,7 @@
 #ifndef ILI9341_FLICKER_FREE_PRINT
 #define ILI9341_FLICKER_FREE_PRINT
 
-#define FLICKER_FREE_PRINT_VER 2.0
+#define ILI9341_FLICKER_FREE_PRINT 1.0
 
 #define JUSTIFY_LEFT 0
 #define JUSTIFY_RIGHT 1
@@ -362,6 +362,7 @@ class ILI9341_FlickerFreePrint {
 
 
 #endif
+
 
 
 /////////////////////////////
