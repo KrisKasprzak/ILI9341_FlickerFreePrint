@@ -2,6 +2,8 @@
 
 This library will let programmers paint data to TFT LCD's using a Teensy and the ILI9341_t3 driver in a flicker free manner. A common practice in clearing old data is to draw a rectangle over old data then draw new. This approach is a must when characters are porportional (character widths are NOT fixed). This library intelligently paints changed text in background color before painting new text.
 
+![header image](https://raw.github.com/KrisKasprzak/ILI9341_FlickerFreePrint/master/Images/Left-right.jpg)
+
 <b><h3>
 WARNING
 </b><br></h3> 
