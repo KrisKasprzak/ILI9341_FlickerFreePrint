@@ -15,6 +15,7 @@ This library will let programmers paint data to TFT LCD's using a Teensy and the
 ILI9341_FlickerFreePrint Data1(&YOUR DISPLAY OBJECT NAME, 0xFFFF, 0X0000);
 
 3. set optional right justification
+<br>
   Data1.setJustification(JUSTIFY_RIGHT);
  <br>
  if you need to restore left justification, call
