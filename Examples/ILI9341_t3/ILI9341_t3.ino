@@ -75,16 +75,16 @@ void loop() {
 
   // get some data to draw
   j += 0.0013;
-i++;
+  i++;
   // draw the default left justified
   Display.setCursor(20, 70);
   Data1.setTextColor(C_WHITE, C_BLACK);
   Data1.print(j, 4);
 
   // now let's draw the optional right justified
+  // here we'll print a char array
   Display.setCursor(300, 190);
   Data2.setTextColor(C_WHITE, C_BLACK);
-
   sprintf(buf, "Datapoint: %d", i);
   Data2.print(buf);
 
