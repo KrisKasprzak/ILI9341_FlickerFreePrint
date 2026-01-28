@@ -1,11 +1,11 @@
 <b><h2><center>ILI9341 FlickerFreePrint Library</center></h1></b>
 
-This library will let programmers paint data to TFT LCD's using a Teensy and the ILI9341_t3 driver in a flicker free manner. A common practice in clearing old data is to draw a rectangle over old data then draw new, this approach is a must when charactgers that are porportional (character widths are NOT fixed). This library intelligently paints changed text in background color before painting new text.
+This library will let programmers paint data to TFT LCD's using a Teensy and the ILI9341_t3 driver in a flicker free manner. A common practice in clearing old data is to draw a rectangle over old data then draw new. This approach is a must when characters are porportional (character widths are NOT fixed). This library intelligently paints changed text in background color before painting new text.
 
 <b><h3>
 WARNING
 </b><br></h3> 
-This library is intended to be used with a wide variety of MCU's. A special library (dtostrf.h) is needed for some MCU's and is delivered with certian MCU's that require it, but not all. If you get a compile error "no such file or directory: dtostrf.h", uncomment this line in FlickerFreePrint.h (around line 50 or so) so the compiler can include it. I have this commented out as few MCU's need it.
+This library is intended to be used with a wide variety of MCU's. A special library (dtostrf.h) is needed for some MCU's and is delivered with certian MCU's that require it, but not all. If you get a compile error "no such file or directory: dtostrf.h", uncomment this line in ILI9341_FlickerFreePrint.h (around line 50 or so) so the compiler can include it. I have this commented out as few MCU's need it.
 // #include <avr/dtostrf.h>
 
 <b><h3>General code usage</b></h3> 
@@ -14,23 +14,18 @@ This library is intended to be used with a wide variety of MCU's. A special libr
        <br>
 #include <ILI9341_FlickerFreePrint.h>
 
-2. create a FlickerFreePaint object for each data to be drawn
-(put the <object type netween the brackets>, pass in your display object and set fore color and back color)
+2. create a FlickerFreePrint object for each data to be drawn and pass in your display object preceeded  with "&" and set the fore color and back color)
         <br>
 ILI9341_FlickerFreePrint Data1(&YOUR DISPLAY OBJECT NAME, 0xFFFF, 0X0000);
 
 3. set optional right justification
   Data1.setJustification(JUSTIFY_RIGHT);
-  // if left but needed call if setting back from right to left
-  // Data1.setJustification(JUSTIFY_LEFT);
+ <br>
+ if you need to restore left justification, call
+ <br>
+ Data1.setJustification(JUSTIFY_LEFT);
 
-  // similar to how you draw text this lib mimics that process
-  // Display.setCursor(x, y);
-  // YourFlickerFreeObject.setTextColor(C_WHITE, C_BLACK);
-  // YourFlickerFreeObject.print(data, <decimals>);
-  
-
-3. Print the data similar to the Print object except call print on the data object
+3. Print the data similar to the Print object except call print on the create flicker free data object
    <br>
    Display.setCursor(x, y);
    <br>
@@ -42,12 +37,12 @@ ILI9341_FlickerFreePrint Data1(&YOUR DISPLAY OBJECT NAME, 0xFFFF, 0X0000);
   
 <b><h3>Tips on usage</b></h3> 
 
-  1. This library is template based so it should work with most display drivers provided
+  1. This library is specific to the ILI9341_t3 driver as it uses display.measureTextWidth(...) methods. This method is specific to the ILI9341_t3 driver. The Adafruit display libraries use a completely different method Display.getTextBounds(...). Adapting this library to accomodate Adafruit_GFX calls is simple just replace 6 or sp calls.
   the driver supports getCursorX() methods
-  2. this linbrary will not paint correctly if a background gradient is used
-  3. this library can work with int, float, char, and other data types
-  4. this library has no capability to print DEX, HEX or Println() functions
-  5. this libary was not tested with LCD (20x4 type)
+  3. this linbrary will not paint correctly if a background gradient is used
+  4. this library can work with int, float, char, and other data types
+  5. this library has no capability to print DEX, HEX or Println() functions (use sprintf and pass a char to the lib)
+  6. this libary was not tested with LCD (20x4 type)
   
   <br>
 <br>
