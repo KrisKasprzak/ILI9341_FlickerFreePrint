@@ -18,6 +18,7 @@ ILI9341_FlickerFreePrint Data1(&YOUR DISPLAY OBJECT NAME, 0xFFFF, 0X0000);
 <br>
   Data1.setJustification(JUSTIFY_RIGHT);
  <br>
+  <br>
  if you need to restore left justification, call
  <br>
  Data1.setJustification(JUSTIFY_LEFT);
