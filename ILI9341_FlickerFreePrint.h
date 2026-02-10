@@ -42,11 +42,12 @@
 #ifndef ILI9341_FLICKER_FREE_PRINT
 #define ILI9341_FLICKER_FREE_PRINT
 
-#define ILI9341_FLICKER_FREE_PRINT 1.0
+#define FLICKER_FREE_PRINT_VER 1.0
 
 #define JUSTIFY_LEFT 0
 #define JUSTIFY_RIGHT 1
 
+// #include <avr/dtostrf.h>
 
 #if ARDUINO >= 100
   #include "Arduino.h"
@@ -62,6 +63,7 @@
 #endif
 
 #define BUF_LEN 30
+
 
 class ILI9341_FlickerFreePrint {
 
@@ -81,7 +83,7 @@ class ILI9341_FlickerFreePrint {
 		}
 	}
 
-	void print(char buf[]){
+	void print(const char buf[]){
 		
 		olen = strlen(obuf);
 		len = strlen(buf);
@@ -255,7 +257,7 @@ class ILI9341_FlickerFreePrint {
 		return;
 
 		}
-	void DrawLJ(char buf[],char obuf[]) {		
+	void DrawLJ(const char buf[],char obuf[]) {		
 	
 		blanked = false;
 		c = d->getCursorX();
@@ -283,9 +285,10 @@ class ILI9341_FlickerFreePrint {
 		
 	}
 	
-	void DrawRJ(char buf[], char obuf[]) {	
+	void DrawRJ(const char buf[], char obuf[]) {	
 	
-		for (i = len-1; i >= 0 ; i--) {				
+		for (i = len-1; i >= 0 ; i--) {		
+			// rip through each character and redraw
 			if ( (len < olen) && !blanked){	
 				blanked = true;
 				for (j = 0; j <= olen; j++){	
@@ -294,7 +297,8 @@ class ILI9341_FlickerFreePrint {
 					d->print(obuf[j]);						
 				}
 			}
-			
+			// if the char width changes (proportional fonts) you must blank out all previous
+			// this will cause a sligh flicker in left chars
 			if ( (d->measureTextWidth(&buf[i]) != d->measureTextWidth(&obuf[i])) && !blanked){	
 				blanked = true;
 				for (j = 0; j <= i; j++){	
@@ -304,6 +308,7 @@ class ILI9341_FlickerFreePrint {
 				}	
 
 			}
+			// if the width is the same but char changed just blank out that char
 			else if ( (buf[i] != obuf[i]) && !blanked){	
 				d->setCursor(c - d->measureTextWidth(&obuf[i]), d->getCursorY());	
 				d->setTextColor(bc, bc);
@@ -311,29 +316,14 @@ class ILI9341_FlickerFreePrint {
 				
 			}
 		
+			// done blanking, now paint the new char
 		
-		d->setCursor(c - d->measureTextWidth(&buf[i]), d->getCursorY());
-		d->setTextColor(fc, bc);
-		d->print(buf[i]);
-			
-		}
-/*		
-		if ( ((buf[i] != obuf[i])   || (d->measureTextWidth(&buf[i]) != d->measureTextWidth(&obuf[i]))) && !blanked){	
-				blanked = true;
-				for (j = 0; j <= i; j++){	
-					d->setCursor(c - d->measureTextWidth(&obuf[j]), d->getCursorY());	
-					d->setTextColor(bc, bc);
-					d->print(obuf[j]);
-				}
-			}
-			
 			d->setCursor(c - d->measureTextWidth(&buf[i]), d->getCursorY());
 			d->setTextColor(fc, bc);
 			d->print(buf[i]);
-		}	
-*/
-
-		
+			
+		}
+		// cache the old data for comparison on the next draw
         strcpy(obuf, buf);	
 	}
 		
@@ -362,7 +352,6 @@ class ILI9341_FlickerFreePrint {
 
 
 #endif
-
 
 
 /////////////////////////////
