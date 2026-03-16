@@ -190,7 +190,7 @@ class ILI9341_FlickerFreePrint {
 		len = strlen(buf);
 		blanked = false;
 		c = d->getCursorX();
-				if (tjust == JUSTIFY_RIGHT){
+		if (tjust == JUSTIFY_RIGHT){
 			DrawRJ();
 		}
 		else {
@@ -207,7 +207,7 @@ class ILI9341_FlickerFreePrint {
 		len = strlen(buf);
 		blanked = false;
 		c = d->getCursorX();
-				if (tjust == JUSTIFY_RIGHT){
+		if (tjust == JUSTIFY_RIGHT){
 			DrawRJ();
 		}
 		else {
@@ -286,19 +286,16 @@ class ILI9341_FlickerFreePrint {
 	
 	void DrawRJ() {	
 		blanked = false;
-		/*
-			first check is the total lenght different? If so every char old char must get blanked then we can draw new ones
-		*/
+		// first check is the total lenght different? If so every char old char must get blanked then we can draw new ones
+		// if the char width changes (proportional fonts) you must blank out all previous
+		// this will cause a sligh flicker in left chars		
 		if ( (d->measureTextWidth((char*)&buf) != d->measureTextWidth((char*)&obuf)) && !blanked){	
 			blanked = true;
 			// blank out all remaining old characters--heck make it easy and start from the right
 			for (j = 0; j < olen; j++){					
 				d->setCursor(c - d->measureTextWidth(&obuf[j]), d->getCursorY());	
-				// d->setCursor(d->getCursorX() - d->measureTextWidth(&obuf[j]), d->getCursorY());
 				d->setTextColor(bc, bc);
-				//d->setTextColor(2548, bc);
 				d->print(obuf[j]);	
-				//delay(2000);
 			}	
 		}
 		// now draw new chars
@@ -306,11 +303,6 @@ class ILI9341_FlickerFreePrint {
 		// noting that if a non-proportional font was used and width is different
 		// all chars would be blanked and new redrawn from above
 		for (i = (len-1); i >= 0 ; i--) {		
-		
-			// if the char width changes (proportional fonts) you must blank out all previous
-			// this will cause a sligh flicker in left chars
-
-			
 			// if the width is the same but char changed just blank out that char
 			if ( (buf[i] != obuf[i]) & !blanked){				
 				d->setCursor(c - d->measureTextWidth(&obuf[i]), d->getCursorY());	
