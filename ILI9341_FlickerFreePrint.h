@@ -1,6 +1,6 @@
 /*
   The MIT License (MIT)
-  Copyright (c) 2020 Kris Kasrpzak
+  Copyright (c) 2026 Kris Kasrpzak
   Permission is hereby granted, free of charge, to any person obtaining a copy of
   this software and associated documentation files (the "Software"), to deal in
   the Software without restriction, including without limitation the rights to
@@ -29,20 +29,20 @@
 
 
   notes:
-  1. This library is template based so it should work with most display drivers provided
-  the driver supports getCursorX() methods
+  1. This library is specific to an ILI9341 driver since it requires measureTextWidth
   2. this library will not paint correctly if a background gradient is used
   3. this library can work with int, float, char, and other data types
   
   ver 		date 			author			comments
   1.0		1/2026			kasprzak		initial code dedicated to the ILI9341 (which includes right justification)
+  2.0		3/2026			kasprzak		added some optimizations
  
 */
 
 #ifndef ILI9341_FLICKER_FREE_PRINT
 #define ILI9341_FLICKER_FREE_PRINT
 
-#define FLICKER_FREE_PRINT_VER 1.0
+#define ILI9341_FLICKER_FREE_PRINT_VER 2.0
 
 #define JUSTIFY_LEFT 0
 #define JUSTIFY_RIGHT 1
@@ -69,11 +69,11 @@ class ILI9341_FlickerFreePrint {
 
   public:
 
-     ILI9341_FlickerFreePrint(ILI9341_t3 *disp, uint16_t ForeColor = 65535, uint16_t BackColor = 0)
-    {
+     ILI9341_FlickerFreePrint(ILI9341_t3 *disp, uint16_t ForeColor = 65535, uint16_t BackColor = 0){
       d = disp;
 	  fc = ForeColor;
       bc = BackColor;
+	  tjust = JUSTIFY_LEFT;
     }
 	
 	void setJustification(uint8_t Justification = JUSTIFY_LEFT){
@@ -83,20 +83,21 @@ class ILI9341_FlickerFreePrint {
 		}
 	}
 
-	void print(const char buf[]){
+	void print(const char Data[]){
 		
+		strcpy(buf, Data);
 		olen = strlen(obuf);
 		len = strlen(buf);
-	
+			
 		blanked = false;
 
 		c = d->getCursorX();
 		
 		if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
 		return;
 		
@@ -114,13 +115,12 @@ class ILI9341_FlickerFreePrint {
 
 
 		if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
-		return;
-		
+		return;		
 
 	}
 
@@ -134,13 +134,12 @@ class ILI9341_FlickerFreePrint {
 		blanked = false;
 		c = d->getCursorX();
 		if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
-		return;
-		
+		return;		
 
 	}
 
@@ -155,10 +154,10 @@ class ILI9341_FlickerFreePrint {
 		c = d->getCursorX();
 
 		if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
 		return;
 
@@ -174,10 +173,10 @@ class ILI9341_FlickerFreePrint {
 		c = d->getCursorX();
 
 		if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
 		return;
 		
@@ -192,10 +191,10 @@ class ILI9341_FlickerFreePrint {
 		blanked = false;
 		c = d->getCursorX();
 				if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
 		return;
 
@@ -209,10 +208,10 @@ class ILI9341_FlickerFreePrint {
 		blanked = false;
 		c = d->getCursorX();
 				if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
 		return;
 
@@ -227,19 +226,18 @@ class ILI9341_FlickerFreePrint {
 
 		blanked = false;
 		c = d->getCursorX();
-		
 
 		if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
 		return;
 		
 	}
 	
-		void print(double Data, int Dec = 2) {
+	void print(double Data, int Dec = 2) {
 
 		dtostrf(Data, 0, Dec, buf);
 
@@ -249,15 +247,16 @@ class ILI9341_FlickerFreePrint {
 		c = d->getCursorX();
 		
 		if (tjust == JUSTIFY_RIGHT){
-			DrawRJ(buf, obuf);
+			DrawRJ();
 		}
 		else {
-			DrawLJ(buf, obuf);
+			DrawLJ();
 		}
 		return;
 
-		}
-	void DrawLJ(const char buf[],char obuf[]) {		
+	}
+	
+	void DrawLJ() {		
 	
 		blanked = false;
 		c = d->getCursorX();
@@ -285,43 +284,43 @@ class ILI9341_FlickerFreePrint {
 		
 	}
 	
-	void DrawRJ(const char buf[], char obuf[]) {	
-	
-		for (i = len-1; i >= 0 ; i--) {		
-			// rip through each character and redraw
-			if ( (len < olen) && !blanked){	
-				blanked = true;
-				for (j = 0; j <= olen; j++){	
-					d->setCursor(c - d->measureTextWidth(&obuf[j]), d->getCursorY());	
-					d->setTextColor(bc, bc);
-					d->print(obuf[j]);						
-				}
-			}
+	void DrawRJ() {	
+		blanked = false;
+		/*
+			first check is the total lenght different? If so every char old char must get blanked then we can draw new ones
+		*/
+		if ( (d->measureTextWidth((char*)&buf) != d->measureTextWidth((char*)&obuf)) && !blanked){	
+			blanked = true;
+			// blank out all remaining old characters--heck make it easy and start from the right
+			for (j = 0; j < olen; j++){					
+				d->setCursor(c - d->measureTextWidth(&obuf[j]), d->getCursorY());	
+				// d->setCursor(d->getCursorX() - d->measureTextWidth(&obuf[j]), d->getCursorY());
+				d->setTextColor(bc, bc);
+				//d->setTextColor(2548, bc);
+				d->print(obuf[j]);	
+				//delay(2000);
+			}	
+		}
+		// now draw new chars
+		// we check each if different blank and redraw
+		// noting that if a non-proportional font was used and width is different
+		// all chars would be blanked and new redrawn from above
+		for (i = (len-1); i >= 0 ; i--) {		
+		
 			// if the char width changes (proportional fonts) you must blank out all previous
 			// this will cause a sligh flicker in left chars
-			if ( (d->measureTextWidth(&buf[i]) != d->measureTextWidth(&obuf[i])) && !blanked){	
-				blanked = true;
-				for (j = 0; j <= i; j++){	
-					d->setCursor(c - d->measureTextWidth(&obuf[j]), d->getCursorY());	
-					d->setTextColor(bc, bc);
-					d->print(obuf[j]);
-				}	
 
-			}
+			
 			// if the width is the same but char changed just blank out that char
-			else if ( (buf[i] != obuf[i]) && !blanked){	
+			if ( (buf[i] != obuf[i]) & !blanked){				
 				d->setCursor(c - d->measureTextWidth(&obuf[i]), d->getCursorY());	
 				d->setTextColor(bc, bc);
-				d->print(obuf[i]);
-				
+				d->print(obuf[i]);		
 			}
-		
 			// done blanking, now paint the new char
-		
 			d->setCursor(c - d->measureTextWidth(&buf[i]), d->getCursorY());
 			d->setTextColor(fc, bc);
-			d->print(buf[i]);
-			
+			d->print(buf[i]);				
 		}
 		// cache the old data for comparison on the next draw
         strcpy(obuf, buf);	
@@ -335,18 +334,14 @@ class ILI9341_FlickerFreePrint {
   protected:
 
     ILI9341_t3	*d;
-    char		obuf[BUF_LEN];
     int			c;
     uint16_t	fc;
 	uint16_t	bc;
-    int16_t	i;
-	int16_t	j;
+    int16_t		i, j, len, olen;
     char		buf[BUF_LEN];
-    uint16_t    len;
-	uint16_t    olen;
-	bool		n = true;
+	char		obuf[BUF_LEN];
 	bool		blanked = false;
-	uint8_t tjust = JUSTIFY_LEFT;
+	uint8_t 	tjust = JUSTIFY_LEFT;
 	
 };
 
