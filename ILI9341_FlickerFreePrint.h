@@ -257,14 +257,14 @@ class ILI9341_FlickerFreePrint {
 	
 	void DrawLJ() {		
 	
-		blankall = false;
+		redrawalways = false;
 		c = d->getCursorX();
 		
 		for (i = 0; i < len; i++) {
 			if (buf[i] != obuf[i]) {
 				c = d->getCursorX();
-				if (!blankall) {
-					blankall = true;
+				if (!redrawalways) {
+					redrawalways = true;
 					for (j = i; j < olen; j++) {
 						d->setTextColor(bc, bc);
 						d->print(obuf[j]);
@@ -283,42 +283,68 @@ class ILI9341_FlickerFreePrint {
 		
 	}
 	
-	void DrawRJ() {	
-		blankall = false;
-		// check if number is changedcheck is the total lenght different? If so every char old char must get blankall then we can draw new ones
+	void DrawRJ() {              
+		blankedall = false;
+		redrawalways = false;
+		redrawjustme = false;
+
+		// first check is the total lenght different? If so every char old char must get blanked then we can draw new ones
 		// if the char width changes (proportional fonts) you must blank out all previous
-		// this will cause a sligh flicker in left chars	
-		
-		if ( (d->measureTextWidth((char*)&buf) != d->measureTextWidth((char*)&obuf)) && !blankall){	
-			blankall = true;
+		// this will cause a sligh flicker in left chars               
+		// you may think that since we're checking char or width later we don't need this but if width changes too much
+		// you may blank part of a char that was just drawn
+
+		if ( d->measureTextWidth((char*)&buf) != d->measureTextWidth((char*)&obuf) ){        
+			blankedall = true;
 			// blank out all remaining old characters--heck make it easy and start from the right
-			for (j = 0; j < olen; j++){					
-				d->setCursor(c - d->measureTextWidth(&obuf[j]), d->getCursorY());	
+			for (j = 0; j < olen; j++){   			
+				d->setCursor(c - d->measureTextWidth(&obuf[j]), d->getCursorY());      
 				d->setTextColor(bc, bc);
-				d->print(obuf[j]);	
-			}	
+				d->setTextColor(bc, bc);
+				d->print(obuf[j]);        
+			}             
 		}
-		
+
 		// now draw new chars
 		// we check each if different blank and redraw
 		// noting that if a non-proportional font was used and width is different
-		// all chars would be blankall and new redrawn from above
-		blankprevious = false;	
-		for (i = (len-1); i >= 0 ; i--) {		
-			// if the width is the same but char changed just blank out that char
-			if (blankprevious || ((buf[i] != obuf[i]) & !blankall)) {	
-				blankprevious = true;			
-				d->setCursor(c - d->measureTextWidth(&obuf[i]), d->getCursorY());	
-				d->setTextColor(bc, bc);
-				d->print(obuf[i]);		
+		// all chars would be blanked and new redrawn from above
+		// we're printing left to right
+
+		for (i = (len-1); i >= 0 ; i--) {                      
+			// if the width changes you must alwasy blank out the next (left character)                                        
+			if (d->measureTextWidth(&buf[i]) != d->measureTextWidth(&obuf[i])) {  
+				redrawalways = true;
 			}
+
+			// if the char changed you only need to blank out its previous character
+			if ( buf[i] != obuf[i]){   
+				redrawjustme = true;
+			}
+
+			// now blank them out but only if needed
+			if (!blankedall){
+				if ((redrawalways || redrawjustme)){
+					d->setCursor(c - d->measureTextWidth(&obuf[i]), d->getCursorY());      
+					d->setTextColor(bc, bc);
+					
+					if (&obuf[i] != NULL){
+						d->print(obuf[i]);        
+					}
+				}
+			}
+
+			// reset the single blank flag as the next char may be the same we'll check on the next char
+			redrawjustme = false;
 			// done blanking, now paint the new char
 			d->setCursor(c - d->measureTextWidth(&buf[i]), d->getCursorY());
 			d->setTextColor(fc, bc);
-			d->print(buf[i]);				
+			d->print(buf[i]);
 		}
+
 		// cache the old data for comparison on the next draw
-        strcpy(obuf, buf);	
+		strcpy(obuf, buf);  
+		
 	}
 		
     void setTextColor(uint16_t ForeColor , uint16_t BackColor) {
@@ -335,8 +361,9 @@ class ILI9341_FlickerFreePrint {
     int16_t		i, j, len, olen;
     char		buf[BUF_LEN];
 	char		obuf[BUF_LEN];
-	bool		blankall = false;
-	bool		blankprevious = false;
+	bool blankedall = false;
+	bool redrawalways = false;
+	bool redrawjustme = false;
 	
 	uint8_t 	tjust = JUSTIFY_LEFT;
 	
